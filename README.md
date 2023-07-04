@@ -1,5 +1,5 @@
 # AZ-Config-Converter [Python]
-The Converter is a Python script that processes Local Azure Function App Configuration to Azure DevOps Release Pipeline Configuration and Azure Function App Configuration
+A python script I use to convert Local Azure Function App Configuration to Azure DevOps Release Pipeline Configuration and Azure Function App Configuration
 
 ## Prerequisites
 - Python 3.x
