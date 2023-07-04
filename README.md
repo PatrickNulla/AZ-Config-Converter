@@ -25,7 +25,8 @@ The Converter is a Python script that processes Local Azure Function App Configu
                    ],
                    "path":[
                        ["Path to your local config (e.g. local.settings.json)", "File name that it will use upon generation"],
-                       ["Path to your local config (e.g. local.settings.json)", "e.g. FunctionApp1"]
+                       ["Path to your local config (e.g. local.settings.json)", "e.g. FunctionApp1"],
+                       ["E:/Sample/Path/To/Your/local.settings.json", "FileNameItWillUse"]
                    ]
                }
            ]
