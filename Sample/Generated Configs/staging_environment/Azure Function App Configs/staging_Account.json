@@ -1,0 +1,7 @@
+[
+  {
+    "name": "DBConnectionString",
+    "value": "staging-connectionstring",
+    "slotSetting": false
+  }
+]

@@ -1,0 +1,7 @@
+[
+  {
+    "name": "DBConnectionString",
+    "value": "production-connectionstring",
+    "slotSetting": false
+  }
+]

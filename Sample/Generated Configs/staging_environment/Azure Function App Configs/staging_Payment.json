@@ -1,0 +1,12 @@
+[
+  {
+    "name": "DBConnectionString",
+    "value": "staging-connectionstring",
+    "slotSetting": false
+  },
+  {
+    "name": "PaymentAPIKey",
+    "value": "StagingTestAPIKey",
+    "slotSetting": false
+  }
+]

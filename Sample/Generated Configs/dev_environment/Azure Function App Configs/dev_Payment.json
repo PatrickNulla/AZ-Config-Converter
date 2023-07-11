@@ -1,0 +1,12 @@
+[
+  {
+    "name": "DBConnectionString",
+    "value": "dev-connectionstring",
+    "slotSetting": false
+  },
+  {
+    "name": "PaymentAPIKey",
+    "value": "DevTestAPIKey",
+    "slotSetting": false
+  }
+]

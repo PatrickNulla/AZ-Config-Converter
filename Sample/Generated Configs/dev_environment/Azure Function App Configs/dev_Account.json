@@ -1,0 +1,7 @@
+[
+  {
+    "name": "DBConnectionString",
+    "value": "dev-connectionstring",
+    "slotSetting": false
+  }
+]

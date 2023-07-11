@@ -1,0 +1,12 @@
+[
+  {
+    "name": "DBConnectionString",
+    "value": "production-connectionstring",
+    "slotSetting": false
+  },
+  {
+    "name": "PaymentAPIKey",
+    "value": "StripeAPIKey",
+    "slotSetting": false
+  }
+]
