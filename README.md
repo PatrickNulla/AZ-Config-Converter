@@ -78,6 +78,8 @@ A Python script used to convert Local Azure Function App Configuration to Azure 
 You can customize the behavior of the Converter script by modifying the configuration in the `converter.json` file according to your specific needs.
 
 ### Sample
+[Check out the actual sample files here.](https://github.com/PatrickNulla/Azure-FunctionApp-Configuration-Converter/tree/main/Sample)
+
 For this example, let's base the configuration on the following scenario:
 - You have 3 environments: `dev`, `staging`, and `production`.
 - In production, you have 2 different payment methods: `Paypal` and `Stripe`.
