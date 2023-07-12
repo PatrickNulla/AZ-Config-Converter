@@ -2,6 +2,8 @@
 
 A Python script used to convert Local Azure Function App Configuration to Azure DevOps Release Pipeline Configuration and Azure Function App Configuration.
 
+(For the C# version with executable release click here.)[https://github.com/PatrickNulla/Azure-FA-Configuration-Converter]
+
 ## Prerequisites
 - Python 3.x
 
@@ -236,6 +238,7 @@ Sample\Generated Configs
 
 `-DBConnectionString "dev-connectionstring" -PaymentAPIKey "DevTestAPIKey"`
 
+**Sample Azure Function App config output**
 #### dev_Payment.json (Azure Function App Configuration)
 ```json
 [
