@@ -168,7 +168,7 @@ For example, you have this converter configuration:
             }
         },
         "ignoreVariables": [
-            "ReleaseDate"
+            "Version"
         ]
     }
 ```
