@@ -2,7 +2,7 @@
 
 A Python script used to convert Local Azure Function App Configuration to Azure DevOps Release Pipeline Configuration and Azure Function App Configuration.
 
-(For the C# version with executable release click here.)[https://github.com/PatrickNulla/Azure-FA-Configuration-Converter]
+[For the C# version with executable release click here.](https://github.com/PatrickNulla/Azure-FA-Configuration-Converter)
 
 ## Prerequisites
 - Python 3.x
