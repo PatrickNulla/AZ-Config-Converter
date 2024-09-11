@@ -1,83 +1,102 @@
 # Local Function App Settings Converter [Python]
 
+Version 2.0
+
 A Python script used to convert Local Azure Function App Configuration to Azure DevOps Release Pipeline Configuration and Azure Function App Configuration.
 
-[For the C# version with executable release click here.](https://github.com/PatrickNulla/CSharp-LocalAzureFAConfig-Converter)
+[For the C# version with executable release click here. (OUTDATED)](https://github.com/PatrickNulla/CSharp-LocalAzureFAConfig-Converter)
 
 ## Prerequisites
 - Python 3.x
 
 ## Usage
-1. Place the `converter.py` file and the configuration file (`converter.json`) in the same directory.
+1. Place the `convert.py` file in your project directory.
 
-2. Open the `converter.json` file and update the configuration to match your specific requirements. The configuration consists of two sections:
-   - `folderName`: The base folder name.
+2. Run the script for the first time to generate a template configuration file:
+   ```
+   python convert.py
+   ```
+   This will create a `template-converter.json` file in the same directory.
+
+3. Rename `template-converter.json` to `gen-converter.json` and edit it to match your specific requirements. The configuration consists of the following sections:
+   - `folderName`: The base folder name for output (will be prepended with "gen-").
    - `pipelineFolderName`: Folder name for the release pipeline generated config.
    - `functionAppFolderName`: Folder name for the Azure Function App generated config.
-   - `writeMode`: Generation mode for the config, either Overwrite or CreateNew. Overwrite mode replaces the whole base folder. CreateNew mode generates a new folder with the Unix time appended to prevent replacing the previously generated configurations. (Overwrite | CreateNew)
+   - `searchPattern`: Pattern to search for configuration files (e.g., "C:\\Path\\To\\Your\\Project\\FunctionApps.*\\{files}").
+   - `writeMode`: Generation mode for the config, either Overwrite or CreateNew. Overwrite mode replaces the whole base folder. CreateNew mode generates a new folder with the Unix time appended to prevent replacing the previously generated configurations.
    - `isSorted`: Sorts the generated configurations alphabetically. (true | false)
    - `reversedSort`: Reverses the order of the keys in the generated configurations. (true | false)
-   - `configPath`: Contains environment mappings and file paths.
+   - `configPath`: Contains environment mappings and file names.
    - `variables`: Defines the value per configuration keys for specific environments (You could use the environment name to reuse the previously set value for that variable e.g. #$Environment_Name$#).
    - `ignoreVariables`: List of variables to be ignored in the generated configurations (Instead of removing the variable in the 'variables' key, list out the unnecessary variables for documentation).
 
    Replace the placeholder values with your actual configuration paths, environments, and configuration keys.
 
-   Example `converter.json` file:
+   Example `gen-converter.json` file:
    ```json
     {
-        "folderName": "BaseFolderName",
-        "pipelineFolderName": "ReleasePipelineFolderName",
-        "functionAppFolderName": "FunctionAppFolderName",
+        "folderName": "OutputFolder",
+        "pipelineFolderName": "PipelineConfig",
+        "functionAppFolderName": "FunctionAppConfig",
+        "searchPattern": "C:\\Path\\To\\Your\\Project\\FunctionApps.*\\{files}",
         "writeMode": "Overwrite",
-        "isSorted":true,
-        "reversedSort":false, 
+        "isSorted": true,
+        "reversedSort": false,
         "configPath": {
             "env": [
                 {
                     "names": [
-                        "list of your",
-                        "environments"
+                        "dev",
+                        "staging",
+                        "production"
                     ],
-                    "path": [
-                        ["Path to your local config (e.g. local.settings.json)", "File name to use upon generation"],
-                        ["Path to your local config (e.g. local.settings.json)", "e.g. FunctionApp1"],
-                        ["E:/Sample/Path/To/Your/local.settings.json", "FileNameItWillUse"]
+                    "files": [
+                        "local.settings.json"
                     ]
                 }
             ]
         },
         "variables": {
-            "one-of-your": {
-                "VariableInYour": "sample-value-1"
+            "dev": {
+                "EXAMPLE_VAR": "dev_value"
             },
-            "environments": {
-                "Configuration": "sample-value-2"
+            "staging": {
+                "EXAMPLE_VAR": "staging_value"
             },
-            "in-the-names-list": {
-                "ThatHasAUniqueValuePerEnvironment": "#$one_of_your$#"
+            "production": {
+                "EXAMPLE_VAR": "prod_value"
             }
         },
         "ignoreVariables": [
-            "Configuration",
-            "ThatHasAUniqueValuePerEnvironment"
+            "WEBSITE_RUN_FROM_PACKAGE"
         ]
     }
    ```
 
-3. Open a terminal or command prompt and navigate to the directory containing the `converter.py` and `converter.json` files.
-
-4. Run the script by executing the following command:
+4. Run the script again to process the configurations:
    ```
-   python converter.py
+   python convert.py
    ```
 
-5. The script will process the configurations and generate the formatted code and converted JSON files based on the specified paths and environment mappings.
+5. The script will process the configurations and generate the formatted code and converted JSON files based on the specified search pattern and environment mappings.
 
-6. The generated output will be placed in separate folders for each environment, as specified in the configuration.
+6. The generated output will be placed in separate folders for each environment, as specified in the configuration, all within a "gen-" prefixed base folder.
+
+## Command-line Arguments
+The script supports the following command-line arguments:
+- `--config`: Specify a custom path to the configuration file (default is "gen-converter.json").
+- `--LocalToPipeline`: Convert local config to pipeline config only.
+- `--PipelineToAzure`: Convert pipeline config to Azure Function App config only.
+- `--AZtoLocal`: Convert Azure Function App config to local config (requires `--file` argument).
+- `--file`: Specify the input file path for AZtoLocal conversion.
+
+Example:
+```
+python convert.py --config my-config.json --LocalToPipeline
+```
 
 ## Customization
-You can customize the behavior of the Converter script by modifying the configuration in the `converter.json` file according to your specific needs.
+You can customize the behavior of the Converter script by modifying the configuration in the `gen-converter.json` file according to your specific needs.
 
 ### Sample
 [Check out the actual sample files here.](https://github.com/PatrickNulla/Azure-FunctionApp-Configuration-Converter/tree/main/Sample)
@@ -107,6 +126,7 @@ For example, you have this converter configuration:
         "folderName": "Sample/Generated Configs",
         "pipelineFolderName": "Pipeline Configs",
         "functionAppFolderName": "Azure Function App Configs",
+        "searchPattern": "D:\\Sample\\Local Settings\\*\\local.settings.json",
         "writeMode": "Overwrite",
         "isSorted": true,
         "reversedSort": false,   
@@ -117,34 +137,20 @@ For example, you have this converter configuration:
                         "dev",
                         "staging"
                     ],
-                    "path": [
-                        ["D:/Sample/Local Settings/AccountFA/local.settings.json", "Account"],
-                        ["D:/Sample/Local Settings/PaymentFA/local.settings.json", "Payment"]
-                    ]
+                    "files": ["local.settings.json"]
                 },
                 {
                     "names": [
                         "production-account"
                     ],
-                    "path": [
-                        ["D:/Sample/Local Settings/AccountFA/local.settings.json", "Account"]
-                    ]
+                    "files": ["local.settings.json"]
                 },
                 {
                     "names": [
-                        "production-paypal"
-                    ],
-                    "path": [
-                        ["D:/Sample/Local Settings/PaymentFA/local.settings.json", "Payment-Paypal"]
-                    ]
-                },
-                {
-                    "names": [
+                        "production-paypal",
                         "production-stripe"
                     ],
-                    "path": [
-                        ["D:/Sample/Local Settings/PaymentFA/local.settings.json", "Payment-Stripe"]
-                    ]
+                    "files": ["local.settings.json"]
                 }
             ]
         },
@@ -176,70 +182,72 @@ For example, you have this converter configuration:
 ```
 The output folder structure would be as follows:
 ```
-Sample\Generated Configs
+gen-Sample\Generated Configs
 |
 |---dev_environment
 |   |
 |   |---Pipeline Configs
 |   |  |
-|   |  |---dev_Account.txt
-|   |  |---dev_Payment.txt
+|   |  |---dev-AccountFA.txt
+|   |  |---dev-PaymentFA.txt
 |   |
 |   |---Azure Function App Configs
 |      |
-|      |---dev_Account.json
-|      |---dev_Payment.json
+|      |---dev-AccountFA.json
+|      |---dev-PaymentFA.json
 |    
 |---staging_environment
 |   |
 |   |---Pipeline Configs
 |   |  |
-|   |  |---staging_Account.txt
-|   |  |---staging_Payment.txt
+|   |  |---staging-AccountFA.txt
+|   |  |---staging-PaymentFA.txt
 |   |
 |   |---Azure Function App Configs
 |      |
-|      |---staging_Account.json
-|      |---staging_Payment.json
+|      |---staging-AccountFA.json
+|      |---staging-PaymentFA.json
 |
 |---production-account_environment
 |   |
 |   |---Pipeline Configs
 |   |  |
-|   |  |---production-account_Account.txt
+|   |  |---production-account-AccountFA.txt
 |   |
 |   |---Azure Function App Configs
 |      |
-|      |---production-account_Account.json
+|      |---production-account-AccountFA.json
 |
 |---production-paypal_environment
 |   |
 |   |---Pipeline Configs
 |   |  |
-|   |  |---production-paypal_Payment-Paypal.txt
+|   |  |---production-paypal-PaymentFA.txt
 |   |
 |   |---Azure Function App Configs
 |      |
-|      |---production-paypal_Payment-Paypal.json
+|      |---production-paypal-PaymentFA.json
 |
 |---production-stripe_environment
 |   |
 |   |---Pipeline Configs
 |   |  |
-|   |  |---production-stripe_Payment-Stripe.txt
+|   |  |---production-stripe-PaymentFA.txt
 |   |
 |   |---Azure Function App Configs
 |      |
-|      |---production-stripe_Payment-Stripe.json
+|      |---production-stripe-PaymentFA.json
+|
+|---variable-list.json
 ```
 
 **Sample Release Pipeline config output**
-#### dev_Payment.txt (Azure DevOps Release Pipeline Configuration)
+#### dev-PaymentFA.txt (Azure DevOps Release Pipeline Configuration)
 
 `-DBConnectionString "dev-connectionstring" -PaymentAPIKey "DevTestAPIKey"`
 
 **Sample Azure Function App config output**
-#### dev_Payment.json (Azure Function App Configuration)
+#### dev-PaymentFA.json (Azure Function App Configuration)
 ```json
 [
     {
@@ -255,7 +263,18 @@ Sample\Generated Configs
 ]
 ```
 
+## Output
+The script generates the following outputs:
+1. Converted configuration files for each environment and function app.
+2. A `variable-list.json` file in the base output folder, containing a sorted list of all unique variables found during the conversion process.
+
+## Note on Security
+The script prepends "gen-" to the output folder name. It's recommended to add "gen-*" to your .gitignore file to avoid accidentally pushing sensitive data to version control.
+
+## Error Handling
+The script includes basic error handling and will print error messages if issues occur during the conversion process.
+
 # Todo
 - [ ] Config Generated Metadata for easy identification of generated files (e.g. When was it generated, etc.)
-- [ ] Add Error Handling
+- [x] Add Error Handling
 - [ ] Add Unit Tests
