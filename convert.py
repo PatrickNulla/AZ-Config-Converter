@@ -14,11 +14,60 @@ class Converter:
         Overwrite = 1
         CreateNew = 2
 
-    def __init__(self, config_file="converter.json"):
+    @staticmethod
+    def generate_template_config():
+        template_config = {
+            "folderName": "OutputFolder",
+            "pipelineFolderName": "PipelineConfig",
+            "functionAppFolderName": "FunctionAppConfig",
+            "searchPattern": "C:\\Path\\To\\Your\\Project\\FunctionApps.*\\{files}",
+            "writeMode": "Overwrite",
+            "isSorted": True,
+            "reversedSort": False,
+            "configPath": {
+                "env": [
+                    {
+                        "names": [
+                            "dev",
+                            "staging",
+                            "production"
+                        ],
+                        "files": ["local.settings.json"]
+                    }
+                ]
+            },
+            "variables": {
+                "dev": {
+                    "EXAMPLE_VAR": "dev_value"
+                },
+                "staging": {
+                    "EXAMPLE_VAR": "staging_value"
+                },
+                "production": {
+                    "EXAMPLE_VAR": "prod_value"
+                }
+            },
+            "ignoreVariables": ["WEBSITE_RUN_FROM_PACKAGE"]
+        }
+        return json.dumps(template_config, indent=2)
+
+    def __init__(self, config_file="gen-converter.json"):
+        if not os.path.exists(config_file):
+            template_file = "template-converter.json"
+            if not os.path.exists(template_file):
+                print(f"Config file '{config_file}' not found. Generating template config.")
+                template_config = self.generate_template_config()
+                with open(template_file, 'w') as f:
+                    f.write(template_config)
+                print(f"Template config file '{template_file}' has been created. Please rename it to '{config_file}', edit it with your specific settings, and run the script again.")
+            else:
+                print(f"Template config file '{template_file}' found. Please rename it to '{config_file}', edit it with your specific settings, and run the script again.")
+            exit(0)
+
         with open(config_file) as config_file:
             self.config_data = json.load(config_file)
             self.unique_variables = set()
-        self.folder_name = self.config_data["folderName"]
+        self.folder_name = os.path.join("gen-" + self.config_data["folderName"])
         self.pipeline_folder_name = self.config_data["pipelineFolderName"]
         self.function_app_folder_name = self.config_data["functionAppFolderName"]
         self.search_pattern = self.config_data["searchPattern"]
@@ -195,13 +244,14 @@ class Converter:
 
 def main():
     parser = argparse.ArgumentParser(description="Azure Function App Configuration Converter")
+    parser.add_argument("--config", type=str, default="gen-converter.json", help="Path to the configuration file")
     parser.add_argument("--LocalToPipeline", action="store_true", help="Convert local config to pipeline config")
     parser.add_argument("--PipelineToAzure", action="store_true", help="Convert pipeline config to Azure Function App config")
     parser.add_argument("--AZtoLocal", action="store_true", help="Convert Azure Function App config to local config")
     parser.add_argument("--file", type=str, help="Path of the file to convert (required for AZtoLocal)")
     args = parser.parse_args()
 
-    converter = Converter()
+    converter = Converter(args.config)
 
     if args.LocalToPipeline:
         converter.local_to_pipeline()

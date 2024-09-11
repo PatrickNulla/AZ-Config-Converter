@@ -162,4 +162,4 @@ cython_debug/
 # Custom
 *.pnjson
 setup.py
-PN_*
+gen-*

@@ -1,38 +1,37 @@
 {
-    "folderName":"BaseFolderName",
-    "pipelineFolderName":"ReleasePipelineFolderName",
-    "functionAppFolderName":"FunctionAppFolderName",
-    "writeMode":"Overwrite",
-    "isSorted":true,
-    "reversedSort":false,
-    "configPath": {
-        "env": [
-            {
-                "names": [
-                    "list of your",
-                    "environments"
-                ],
-                "path": [
-                    ["Path to your local config (e.g. local.settings.json)", "File name that it will use upon generation"],
-                    ["Path to your local config (e.g. local.settings.json)", "e.g. FunctionApp1"],
-                    ["E:/Sample/Path/To/Your/local.settings.json", "FileNameItWillUse"]
-                ]
-            }
+  "folderName": "OutputFolder",
+  "pipelineFolderName": "PipelineConfig",
+  "functionAppFolderName": "FunctionAppConfig",
+  "searchPattern": "C:\\Path\\To\\Your\\Project\\FunctionApps.*\\{files}",
+  "writeMode": "Overwrite",
+  "isSorted": true,
+  "reversedSort": false,
+  "configPath": {
+    "env": [
+      {
+        "names": [
+          "dev",
+          "staging",
+          "production"
+        ],
+        "files": [
+          "local.settings.json"
         ]
-    },
-    "variables": {
-        "one-of-your": {
-            "VariableInYour": "sample-value-1"
-        },
-        "environments": {
-            "Configuration": "sample-value-2"
-        },
-        "in-the-names-list": {
-            "ThatHasAUniqueValuePerEnvironment": "#$one_of_your$#"
-        }
-    },
-    "ignoreVariables": [
-        "Configuration",
-        "ThatHasAUniqueValuePerEnvironment"
+      }
     ]
+  },
+  "variables": {
+    "dev": {
+      "EXAMPLE_VAR": "dev_value"
+    },
+    "staging": {
+      "EXAMPLE_VAR": "staging_value"
+    },
+    "production": {
+      "EXAMPLE_VAR": "prod_value"
+    }
+  },
+  "ignoreVariables": [
+    "WEBSITE_RUN_FROM_PACKAGE"
+  ]
 }
