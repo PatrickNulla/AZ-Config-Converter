@@ -8,7 +8,7 @@ import argparse
 import glob
 
 class Converter:
-    VERSION = "1.0"
+    VERSION = "2.0"
 
     class _WriteMode(Enum):
         Overwrite = 1
@@ -17,6 +17,7 @@ class Converter:
     def __init__(self, config_file="converter.json"):
         with open(config_file) as config_file:
             self.config_data = json.load(config_file)
+            self.unique_variables = set()
         self.folder_name = self.config_data["folderName"]
         self.pipeline_folder_name = self.config_data["pipelineFolderName"]
         self.function_app_folder_name = self.config_data["functionAppFolderName"]
@@ -91,7 +92,9 @@ class Converter:
                     try:
                         with open(file_path) as file:
                             data = file.read()
-                            converted_data = convert_func(data, environment)
+                            converted_data, variables = convert_func(data, environment)
+
+                        self.unique_variables.update(variables)  # Add variables to the set
 
                         wildcard_value = os.path.basename(os.path.dirname(file_path))
 
@@ -105,27 +108,32 @@ class Converter:
                     except Exception as e:
                         print(f"Error processing file {file_path}: {str(e)}")
 
+        # After processing all files, create the variable-list.json
+        self.__create_variable_list()
+
     def __write_output_file(self, file_name: str, content: str):
         with open(file_name, "w") as output_file:
             output_file.write(content)
 
-    def __convert_local_to_pipeline(self, data: str, environment: str) -> str:
+    def __convert_local_to_pipeline(self, data: str, environment: str) -> Tuple[str, List[str]]:
         parsed_data = json.loads(data)
+        variables = list(parsed_data["Values"].keys())
         formatted_strings = [
             f'-{key} "{self.__replace_variables(key, value, environment, self.variables)}"'
             for key, value in self.__sorted_items(parsed_data["Values"])
             if key not in self.ignore_variables
         ]
-        return " ".join(formatted_strings)
+        return " ".join(formatted_strings), variables
 
-    def __convert_pipeline_to_azure_fa_config(self, data: str, environment: str) -> str:
+    def __convert_pipeline_to_azure_fa_config(self, data: str, environment: str) -> Tuple[str, List[str]]:
         json_data = json.loads(data)
+        variables = list(json_data["Values"].keys())
         result = [
             {"name": key, "value": str(self.__replace_variables(key, value, environment, self.variables)), "slotSetting": False}
             for key, value in self.__sorted_items(json_data["Values"])
             if key not in self.ignore_variables
         ]
-        return json.dumps(result, indent=2)
+        return json.dumps(result, indent=2), variables
 
     def __replace_variables(self, key: str, value: str, environment: str, variables: Dict) -> str:
         if environment in variables and key in variables[environment]:
@@ -148,26 +156,42 @@ class Converter:
 
             with open(input_file_path, 'r') as file:
                 data = file.read()
-                converted_data = self.__convert_azure_to_local(data, "")
+                converted_data, variables = self.__convert_azure_to_local(data, "")
+
+            self.unique_variables.update(variables)
 
             output_file_name = os.path.join(output_folder, f"local.settings.json")
             self.__write_output_file(output_file_name, converted_data)
             self.generated_files.append(output_file_name)
             print(f"Conversion complete. Output file: {output_file_name}")
+
+            # Create variable-list.json after processing
+            self.__create_variable_list()
         except Exception as e:
             print(f"An error occurred: {str(e)}")
 
-    def __convert_azure_to_local(self, data: str, environment: str) -> str:
+    def __convert_azure_to_local(self, data: str, environment: str) -> Tuple[str, List[str]]:
         azure_config = json.loads(data)
         local_config = {
             "IsEncrypted": False,
             "Values": {}
         }
         
+        variables = []
         for item in azure_config:
             local_config["Values"][item["name"]] = item["value"]
+            variables.append(item["name"])
 
-        return json.dumps(local_config, indent=2)
+        return json.dumps(local_config, indent=2), variables
+
+    def __create_variable_list(self):
+        variable_list = {
+            "variables": sorted(list(self.unique_variables))
+        }
+        output_file_name = os.path.join(self.folder_name, "variable-list.json")
+        with open(output_file_name, "w") as output_file:
+            json.dump(variable_list, output_file, indent=2)
+        print(f"Created variable list: {output_file_name}")
 
 def main():
     parser = argparse.ArgumentParser(description="Azure Function App Configuration Converter")
